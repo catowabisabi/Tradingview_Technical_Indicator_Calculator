@@ -44,7 +44,8 @@ for interval in interval_list:
     moving_averages = handler.get_analysis().moving_averages
     indicators  = handler.get_analysis().indicators 
 
-    msg =       "在{}時間段裏, 買進訊號為{}個, 賣出訊號為{}個。\n\
+
+    msg =       "在{}時間段裏, BUY!! 訊號為{}個, SELL!! 訊號為{}個。\n\
                 RSI為:{} || EMA20為: {} || EMA50為: {} || EMA200為: {} \n\
                 保力加通度為: {} - {} || 動量指標為: {} || MACD為: {} \n\
                 現時K線高低價位為: {} - {}, 波動幅度為: {}, 波動百份比為日線: {}% \n\
@@ -80,15 +81,56 @@ for interval in interval_list:
     #     print(result)
     #    # print('\n')
     
-  
+    #print(oscillators)
     buy += summary['BUY']
     sell += summary['SELL']
+print ('\n\n所有時間段的分析後得出: 買 = {}, 沽 = {}\n\n\n'.format(buy, sell))
 
     # 列出所有indicator, 在不同的時段
     #df = pd.DataFrame(list(indicators.items()), columns  = ['Indicator', 'Value'])
     #print(df)
 
-print ('\n\n所有時間段的分析後得出: 買 = {}, 沽 = {}\n\n\n'.format(buy, sell))
+# 加權買賣訊號
+
+for interval in interval_list: 
+    handler = TA_Handler(
+        symbol=symbol,
+        screener=screener,
+        exchange=exchange,
+        interval=interval
+    )
+    summary = handler.get_analysis().summary
+    
+    if interval == "1m":
+        buy += summary['BUY']
+        sell += summary['SELL']
+    elif interval == "5m":
+        buy += (summary['BUY'] * 2)
+        sell += (summary['SELL'] * 2)
+    elif interval == "15m":
+        buy += (summary['BUY'] * 4)
+        sell += (summary['SELL'] * 4)
+    elif interval == "30m":
+        buy += (summary['BUY'] * 8)
+        sell += (summary['SELL'] * 8)
+    elif interval == "1h":
+        buy += (summary['BUY'] * 16)
+        sell += (summary['SELL'] * 16)
+    elif interval == "2h":
+        buy += (summary['BUY'] * 32)
+        sell += (summary['SELL'] * 32)
+    elif interval == "4h":
+        buy += (summary['BUY'] * 64)
+        sell += (summary['SELL'] * 64)
+    elif interval == "1d":
+        buy += (summary['BUY'] * 128)
+        sell += (summary['SELL'] * 128)
+    #print (interval, summary)
+
+
+
+
+print ('\n\n所有時間段的分析後得出(加權): 買 = {}, 沽 = {}\n\n\n'.format(buy, sell))
 
 from tradingview_ta import *
 analysis = get_multiple_analysis(screener="america", interval=Interval.INTERVAL_1_HOUR, symbols=["nasdaq:tsla", "nyse:docn", "nasdaq:aapl"])
